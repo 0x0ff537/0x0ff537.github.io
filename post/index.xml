@@ -6,7 +6,16 @@
     <description>Recent content in Posts on 0x0ff537</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 28 Aug 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://0x0ff537.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 27 Jan 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://0x0ff537.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Customize the Loader</title>
+      <link>https://0x0ff537.github.io/post/customizeloader/</link>
+      <pubDate>Fri, 27 Jan 2023 00:00:00 +0000</pubDate>
+      
+      <guid>https://0x0ff537.github.io/post/customizeloader/</guid>
+      <description>First I would like to mention that this is more about my own learning process other than a proper tutorial. I&amp;rsquo;ve been playing around with Sliver framework a lot lately, if you&amp;rsquo;ve done it too then you know you can generate beacons in different formats including shellcode, this is cool, right? Because you can just inject it into memory and the shellcode will reflectively load a DLL that conatins the actual beacon payload, but this process leaves some memory artifacts that can be detected by AVs, EDRs or memory scanners like PE-sieve.</description>
+    </item>
+    
     <item>
       <title>DLL proxying &amp; sideloading</title>
       <link>https://0x0ff537.github.io/post/dllproxying/</link>

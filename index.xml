@@ -6,7 +6,16 @@
     <description>Recent content in Hacking, Red Teaming &amp; malware development on 0x0ff537</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 27 Jan 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://0x0ff537.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 04 Aug 2023 20:58:24 -0600</lastBuildDate><atom:link href="https://0x0ff537.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Meterpreter: Bypassing Defender</title>
+      <link>https://0x0ff537.github.io/post/bypassingdefender/</link>
+      <pubDate>Fri, 04 Aug 2023 20:58:24 -0600</pubDate>
+      
+      <guid>https://0x0ff537.github.io/post/bypassingdefender/</guid>
+      <description>In this post I&amp;rsquo;ll describe the approach taken to be able to get a meterpreter session in a default updated installation of windows 10 with all the security features enabled. This is not new and there&amp;rsquo;s a lot of info out there if you google for it, so it&amp;rsquo;s more of an exercise to practice evasion techniques using one of the most fingerprinted hacking frameworks out there (or at least I think so).</description>
+    </item>
+    
     <item>
       <title>Customize the Loader</title>
       <link>https://0x0ff537.github.io/post/customizeloader/</link>

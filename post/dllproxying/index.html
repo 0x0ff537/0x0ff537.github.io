@@ -32,7 +32,7 @@
     
     
     <meta property="og:title" content="DLL proxying &amp; sideloading" />
-<meta property="og:description" content="While studying DLL injection techniques, specifically DLL sideloading, I found this article by Palo Alto Network&rsquo;s Unit 42 When Pentest Tools Go Brutal: Red-Teaming Tool Being Abused by Malicious Actors. The article describes how the dropper was using a technique known as DLL search order hijacking to sideload a malicious crafted DLL that will inject a Brute Ratel agent (badger) into a remote process&rsquo;s memory space, in this case RuntimeBroker." />
+<meta property="og:description" content="While studying DLL injection techniques, specifically DLL sideloading, I found this article by Palo Alto Network&rsquo;s Unit 42 When Pentest Tools Go Brutal: Red-Teaming Tool Being Abused by Malicious Actors. The article describes how the dropper was using using a technique known as DLL search order hijacking to sideload a malicious crafted DLL that will inject a Brute Ratel agent (badger) into a remote process&rsquo;s memory space, in this case RuntimeBroker." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://0x0ff537.github.io/post/dllproxying/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2022-08-28T00:00:00+00:00" />
@@ -253,7 +253,7 @@ The full code can be found in my <a href="https://github.com/0x0ff537/Process-In
 <h2 id="lets-test-it-out">Let&rsquo;s test it out</h2>
 <p>To make a kind of <i>realistic</i> test I&rsquo;ll move the ISO file to kali and serve it via apache:</p>
 <p><img src="/images/iso_download.png" alt="iso_download"></p>
-<p>Once the ISO has been downloaded I can mount it and double clicking the LNK file will launch OneDriveUpdate.exe and sideload my malicious DLL (keep in mind that all the files have the hidden attribute set, except for the LNK file):</p>
+<p>Once the ISO has been downloaded I can mount it and double clicking in the LNK file will launch OneDriveUpdate.exe and sideload my malicious DLL (keep in mind that all the files have the hidden attribute set, except for the LNK file):</p>
 <p><img src="/images/onedrive_run.png" alt="onedrive_run"></p>
 <p>Going back to Sliver we can see that a connection is received:</p>
 <p><img src="/images/sliver_beacon.png" alt="sliver_beacon"></p>
@@ -273,7 +273,7 @@ The full code can be found in my <a href="https://github.com/0x0ff537/Process-In
     <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
   <div class="flex justify-between">
   <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://0x0ff537.github.io" >
-    &copy;  0x0ff537 2022 
+    &copy;  0x0ff537 2023 
   </a>
     <div>
 <div class="ananke-socials">
